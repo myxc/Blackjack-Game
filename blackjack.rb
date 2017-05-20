@@ -1,4 +1,7 @@
 require 'sinatra'
+require './blackjack/deck.rb'
+require 'pry-byebug'
+require './helpers/game_helper.rb'
 
 #goal to get more points than dealer without going over 21.
 #1. player bets
@@ -18,7 +21,7 @@ require 'sinatra'
 #9. Aces are 1 or 11, depending on which value gives player a higher # or prevents a bust., other cards are worth their face value, face cards are worth 10.
 
 #Cookies: simple key-value pairs read using request.cookies["cookie_name"], written using response.cookies("cookie_name","cookie_value")
-
+helpers GameHelper
 enable :sessions
 #sessions: hash that sticks around between requests.
 
@@ -31,5 +34,33 @@ get '/' do
   nino_number = rand(9999)
   erb :homepage, locals: {table: nino_number}
 end
+
+get '/blackjack' do
+  deck = Deck.new #deck is created and shuffled right when deck is instantiated.
+  player_hand = deck.deal_player
+  dealer_hand = deck.deal_dealer
+  player = [player_hand[0][1], player_hand[1][1]]
+  dealer = [dealer_hand[0][1], dealer_hand[1][1]]
+  save_state(deck)
+  save_player_hand(player)
+  save_dealer_hand(dealer)
+
+  player_sum = sum(player)
+  dealer_sum = sum(dealer)
+
+  player_bankroll = check_bankroll
+  if player[0] == player[1]
+    split = true
+  else
+    split = false
+  end
+  
+  erb :blackjack, locals: {player: player, dealer: dealer, player_sum: player_sum, :dealer_sum dealer_sum, bankroll: player_bankroll, split: split}  
+end
+
+
+
+
+
 
 

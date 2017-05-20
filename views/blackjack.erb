@@ -1,0 +1,19 @@
+<h2> You have been dealt <%=player[0]%> and <%=player[1]%> </h2>
+<h2> For a sum of <%=player_sum%> </h2>
+
+<h2> Dealer shows <%=dealer[0]%></h2>
+<br>
+<h2> What will you choose to do? </h2>
+
+<form action="/blackjack" method="post"/>
+  <input type="radio" name="choice" value="hit"> Hit
+
+  <input type="radio" name="choice" value="stay"> Stay
+
+  <input type="radio" name="choice" value="double"> Double
+  <% if split? %>
+    <input type="radio" name="choice" value="split"> Split
+  <% else %>  
+    <input type="submit" value="This!">
+  <% end %>
+</form>
