@@ -11,9 +11,8 @@
   <input type="radio" name="choice" value="stay"> Stay
 
   <input type="radio" name="choice" value="double"> Double
-  <% if split? %>
-    <input type="radio" name="choice" value="split"> Split
-  <% else %>  
+  <% if can_split %>
+    <input type="radio" name="choice" value="split"> Split    
+  <% end %>  
     <input type="submit" value="This!">
-  <% end %>
 </form>

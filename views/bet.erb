@@ -1,0 +1,11 @@
+<%if check_overdraft %>
+  <h2>Please try to bet again with a value that is less than or equal to your bank roll</h2>
+<% end %>
+<br>
+<h2>You currently have <%=bankroll%> dollars to wager, how much would you like to bet?</h2>
+
+
+<form action="/blackjack/submit_bet" method="post"/>
+  <input type="text" name="wager">
+  <input type="submit" Value="Submit wager!">
+</form>

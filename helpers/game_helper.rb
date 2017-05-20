@@ -9,10 +9,10 @@ module GameHelper
 
   def sum(hand)
     sum = 0
-    hand.size do |card|
+    hand.each do |card|
       sum += card
     end
-    sum
+    return sum
   end
   
   def save_player_hand(hand)
@@ -31,5 +31,46 @@ module GameHelper
     end
   end  
 
+  def save_bankroll(bank)
+    session[:bankroll] = bank
+  end
+
+  def can_split
+    if session[:split].nil? || !session[:split]
+      return false
+    else
+      true
+    end
+  end
+
+  def store_bet(bet)
+    session[:bet] = bet
+  end
+
+  def load_bet
+    session[:bet]
+  end
   
+  def win_bet(bet, blackjack = false)
+    current = session[:bankroll]
+    if blackjack
+      bet *= 1.5
+      current += bet
+    else
+      current += bet
+    end
+    session[:bankroll] = current
+  end
+  
+  def check_overdraft
+    if session[:overdraft].nil?
+      session[:overdraft] = false
+      return false
+    else
+      session[:overdraft]
+    end
+  end
+  
+
+    
 end

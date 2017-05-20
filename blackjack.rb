@@ -35,7 +35,29 @@ get '/' do
   erb :homepage, locals: {table: nino_number}
 end
 
-get '/blackjack' do
+get '/blackjack/bet' do
+  bankroll = check_bankroll
+  erb :bet, locals: {bankroll: bankroll}
+end
+
+post '/blackjack/submit_bet' do
+  bet = params["wager"].to_i
+  bankroll = check_bankroll
+  if bet <= bankroll
+    bankroll -= bet
+    store_bet(bet)
+    save_bankroll(bankroll)
+    redirect to("/blackjack") 
+  else
+    session[:overdraft] = true
+    erb :bet, locals: {bankroll: bankroll}
+  end
+end
+ 
+
+
+
+post '/blackjack' do
   deck = Deck.new #deck is created and shuffled right when deck is instantiated.
   player_hand = deck.deal_player
   dealer_hand = deck.deal_dealer
@@ -55,8 +77,10 @@ get '/blackjack' do
     split = false
   end
   
-  erb :blackjack, locals: {player: player, dealer: dealer, player_sum: player_sum, :dealer_sum dealer_sum, bankroll: player_bankroll, split: split}  
+  erb :blackjack, locals: {player: player, dealer: dealer, player_sum: player_sum, dealer_sum: dealer_sum, bankroll: player_bankroll, split: split}  
 end
+
+
 
 
 
