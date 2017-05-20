@@ -28,7 +28,8 @@ enable :sessions
 #use erb tags only to display stuff you need, don't put any heavy logic into it (it's hard to)
 
 get '/' do 
-  "Hello World!"
+  nino_number = rand(9999)
+  erb :homepage, locals: {table: nino_number}
 end
 
 
