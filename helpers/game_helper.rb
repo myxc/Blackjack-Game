@@ -10,7 +10,18 @@ module GameHelper
   def sum(hand)
     sum = 0
     hand.each do |card|
-      sum += card
+      if card == 1
+        temp = sum + 11
+        if temp <= 21
+          sum += 11
+          next
+        else
+          sum += 1
+          next
+        end
+      else
+        sum += card
+      end
     end
     return sum
   end

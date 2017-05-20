@@ -54,10 +54,7 @@ post '/blackjack/submit_bet' do
   end
 end
  
-
-
-
-post '/blackjack' do
+get '/blackjack' do
   deck = Deck.new #deck is created and shuffled right when deck is instantiated.
   player_hand = deck.deal_player
   dealer_hand = deck.deal_dealer
@@ -79,6 +76,23 @@ post '/blackjack' do
   
   erb :blackjack, locals: {player: player, dealer: dealer, player_sum: player_sum, dealer_sum: dealer_sum, bankroll: player_bankroll, split: split}  
 end
+
+get '/blackjack/hit' do
+  "This is a hit"
+end
+
+get '/blackjack/stay' do
+  "This is a stay"
+end
+
+get '/blackjack/double' do
+  "this is double down"
+end
+
+get '/blackjack/split' do
+  "this is splitting"
+end
+
 
 
 

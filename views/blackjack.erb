@@ -4,15 +4,17 @@
 <h2> Dealer shows <%=dealer[0]%></h2>
 <br>
 <h2> What will you choose to do? </h2>
-
-<form action="/blackjack" method="post"/>
-  <input type="radio" name="choice" value="hit"> Hit
-
-  <input type="radio" name="choice" value="stay"> Stay
-
-  <input type="radio" name="choice" value="double"> Double
-  <% if can_split %>
-    <input type="radio" name="choice" value="split"> Split    
-  <% end %>  
-    <input type="submit" value="This!">
+<form action="/blackjack/hit">
+  <input type="submit" value="Hit!">
 </form>
+<form action="/blackjack/stay">
+  <input type="submit" value="Stay!">
+</form>
+<form action="/blackjack/double">
+  <input type="submit" value="Double Down!">
+</form>
+  <% if can_split %>
+<form action="/blackjack/split">
+  <input type="submit" value="Split">
+</form>
+<%end%>
