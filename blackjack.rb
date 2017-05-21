@@ -3,12 +3,6 @@ require './blackjack/deck.rb'
 require 'pry-byebug'
 require './helpers/game_helper.rb'
 
-#goal to get more points than dealer without going over 21.
-#1. player bets
-#2.Player and dealer dealt two cards, dealer's second card is facedown
-# If dealer his 21 points total (blackjack), everyone loses unless a player also gets 21, in which case it's a tie
-# 3. If player gets 21 and dealer doesn't have 21, he hits blackjack and gets paid 3:2 (Can only get blackjack on newly split hand or initial deal)
-# 4. Player begins his turn: Hitting, staying, doubling, or splitting
 # Stay: turn moves to dealer
 # Hit: Player gets another card, busts if total >21
 # Doubling: Player doubles his bet, gets 1 card
@@ -17,8 +11,7 @@ require './helpers/game_helper.rb'
 #5. Dealer always hits until he has 17 or more points or busts
 #6. After dealer finishes his turn (hits to >17 or busts) bets are paid 1:1
 #7. Players who've tied dealer are returned their bet.
-#8. POINTS:
-#9. Aces are 1 or 11, depending on which value gives player a higher # or prevents a bust., other cards are worth their face value, face cards are worth 10.
+#8 check if player hit blackjack right off the bat, and if he did, pay out 3:2
 
 #Cookies: simple key-value pairs read using request.cookies["cookie_name"], written using response.cookies("cookie_name","cookie_value")
 helpers GameHelper
@@ -69,36 +62,111 @@ get '/blackjack' do
 
   player_bankroll = check_bankroll
   if player[0] == player[1]
-    split = true
+    session[:split] = true
   else
-    split = false
+    session[:split] = false
   end
-  
-  erb :blackjack, locals: {player: player, dealer: dealer, player_sum: player_sum, dealer_sum: dealer_sum, bankroll: player_bankroll, split: split}  
+  bet = load_bet
+  if player_sum == 21
+    result = 4
+    win_bet(bet, true)
+    response.set_cookie("result", result)    
+    erb :results, locals: {player_sum: player_sum, dealer_sum: dealer_sum}
+  end
+  erb :blackjack, locals: {player: player, dealer: dealer, player_sum: player_sum, dealer_sum: dealer_sum}  
 end
 
 get '/blackjack/hit' do
-  "This is a hit"
+  deck = load_deck
+  #load pertinent elements: player cards, player sum dealer sum and check for splits:
+  player_hand = load_player_hand
+  dealt_card = deck.state.pop
+  card = dealt_card[1]
+  player_hand << card
+  player_sum = sum(player_hand)
+  save_player_hand(player_hand)
+  save_state(deck)
+
+  dealer = load_dealer_hand
+  dealer_sum = sum(dealer)
+
+  session[:split] = false
+  temp = player_hand.size
+  player_hand.each_with_index do |card, index|
+    0.upto(temp) do |cmp|
+      if cmp != index
+        if card == player_hand[cmp]
+          session[:split] = true
+        else
+          next
+        end
+      end
+    end
+  end
+
+  if player_sum < 21
+    erb :blackjack, locals: {player: player_hand, dealer: dealer, player_sum: player_sum, dealer_sum: dealer_sum}  
+  elsif player_sum == 21
+    redirect to"/blackjack/dealer"
+  else
+    redirect to"/blackjack/bust"
+  end
 end
 
 get '/blackjack/stay' do
-  "This is a stay"
+  redirect to"blackjack/dealer"
 end
 
 get '/blackjack/double' do
-  "this is double down"
+  bet_amount = load_bet
+  bankroll = check_bankroll
+  if bet_amount <= bankroll
+    bankroll -= bet_amount
+    store_bet(bet_amount * 2)
+    save_bankroll(bankroll)
+    response.set_cookie("doubled", 1)
+    redirect to("/blackjack/dealer") 
+  else
+    player = load_player_hand
+    player_sum = sum(player)
+    dealer = load_dealer_hand
+    dealer_sum = sum(dealer)
+    response.set_cookie("doubled", 2)
+    erb :blackjack, locals: {player: player, dealer: dealer, player_sum: player_sum, dealer_sum: dealer_sum}  
+  end
 end
 
 get '/blackjack/split' do
   "this is splitting"
 end
 
-
-
-
-
-
-
-
-
-
+get '/blackjack/dealer' do
+  #dealer hits until 
+  player = load_player_hand
+  player_sum = sum(player)
+  dealer = load_dealer_hand
+  dealer_sum = sum(dealer)  
+  n_deck = load_deck
+  while dealer_sum < 17
+    dealt_card = n_deck.state.pop  
+    card = dealt_card[1]
+    dealer << card
+    dealer_sum = sum(dealer)
+  end
+  save_state(n_deck)
+  save_dealer_hand(dealer)
+  bet = load_bet
+  result = check_results(dealer_sum, player_sum) #returns a 1 2 3 based on player result
+  if result == 1
+    win_bet(bet)
+  # elsif result == 2
+  #   redirect to"/blackjack/bust"    
+  elsif result == 3
+    temp = check_bankroll
+    temp += bet
+    save_bankroll(temp)
+  end
+  response.set_cookie("result", result)
+  binding.pry
+  erb :results, locals: {player_sum: player_sum, dealer_sum: dealer_sum}
+end

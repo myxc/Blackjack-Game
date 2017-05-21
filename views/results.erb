@@ -1,0 +1,10 @@
+<% result = request.cookies["result"]%>
+<%if result == "4"%>
+  <h1>Congratulations, you hit a blackjack! You win and get paid out 3:2 automatically!</h1>
+<% elsif result == "1"%>
+  <h1>Congratulations, you have beaten the dealer! The winnings have already been put into your bankroll.</h1>
+<%elsif result == "2" %>
+  <h1>Sorry, the dealer wins!</h1>
+<%else%>
+  <h1>The game has resulted in a tie! You keep your bet amount.</h1>
+<% end %>

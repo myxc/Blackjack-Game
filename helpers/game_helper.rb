@@ -29,6 +29,19 @@ module GameHelper
   def save_player_hand(hand)
     session[:player] = hand
   end
+
+  def load_player_hand
+    session[:player]
+  end
+  
+  def load_dealer_hand
+    session[:dealer]
+  end
+  
+  def doubled_down
+    code = request.cookies["doubled"]
+  end
+  
   
   def save_dealer_hand(hand)
     session[:dealer] = hand
@@ -64,6 +77,7 @@ module GameHelper
   
   def win_bet(bet, blackjack = false)
     current = session[:bankroll]
+    current += bet
     if blackjack
       bet *= 1.5
       current += bet
@@ -82,6 +96,17 @@ module GameHelper
     end
   end
   
-
-    
+  def check_results(dealer, player) #returns 1 2 or 3 based on player win, lose or tie
+    if dealer > 21
+      return 1
+    else
+      if dealer > player
+        return 2
+      elsif dealer == player
+        return 3
+      else
+        return 1
+      end
+    end
+  end 
 end
